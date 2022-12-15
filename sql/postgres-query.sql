@@ -22,3 +22,12 @@ insert into kdrama_list values
     (8, 'Descendants of the Sun', 16, 'KBS2', 8.7, 77045, 146812, 'This drama tells of the love story that develops between a surgeon and a special forces officer...'),
     (9, 'Dr Romantic', 20, 'SBS', 8.7, 22827, 48508, 'Romantic Doctor Kim is a real doctor story set in a small, humble hospital called Dol Dam Hospit...'),
     (10, 'Vincenzo', 20, 'Netflix-TVN', 9, 51495, 92974, 'During a visit to his motherland, a Korean-Italian mafia lawyer gives an unrivaled conglomerate a ta...');
+
+-- 6. Streaming Insertion
+insert into kdrama_list values (11, 'Hospital Playlist', 12, '...', 8.5, 3, 7, '...');
+insert into kdrama_list values (12, 'Hospital Playlist', 12, '...', 9.5, 1, 3, '...');
+insert into kdrama_list values (13, 'Descendants of the Sun', 16, '...', 8.8, 6, 10, '...');
+insert into kdrama_list values (14, 'Mouse', 20, '...', 9, 10, 10, '...');
+insert into kdrama_list values (15, 'Vincenzo', 12, '...', 9.3, 13, 25, '...');
+insert into kdrama_list values (16, 'Extraordinary Attorney Woo', 16, '...', 9.6, 4, 7, '...');
+insert into kdrama_list values (17, 'Extraordinary Attorney Woo', 16, '...', 9.0, 8, 8, '...');

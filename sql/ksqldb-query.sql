@@ -1,21 +1,22 @@
--- # 1. Connector Creation
+-- # 1. Connector Creation - https://debezium.io/documentation/reference/stable/connectors/postgresql.html#postgresql-connector-properties
 CREATE SOURCE CONNECTOR kdrm_source WITH (
     'connector.class'                           = 'io.debezium.connector.postgresql.PostgresConnector',
-    'tasks.max'                                 = '1',
     'database.port'                             = '5432',
     'database.hostname'                         = 'postgres',
-    'database.user'                             = 'postgres',
-    'database.dbname'                           = 'postgres',
+    'database.dbname'                           = 'db_postgres',
+    'database.user'                             = 'postgres_u',
     'database.password'                         = 'postpass',
-    'database.server.name'                      = 'dbserver1',
-    'database.whitelist'                        = 'postgres',
-    'topic.prefix'                              = 'psql_',
-    'table.whitelist'                           = 'kdrama_list',
+    'database.server.name'                      = 'db_postgres',
+    'database.whitelist'                        = 'db_postgres',
+    'topic.prefix'                              = 'psql_connect01',
+    'table.include.list'                        = 'db_postgres.kdrama_list',
     'database.history.kafka.bootstrap.servers'  = 'broker:9092',
-    'database.history.kafka.topic'              = 'schema-changes.postgres',
-    'mode'                                      = 'incrementing',
-    'numeric.mapping'                           = 'best_fit',
-    'key'                                       = 'list_id'
+    'database.history.kafka.topic'              = 'schema-changes.db_postgres',
+    'key.converter'                             = 'org.apache.kafka.connect.storage.StringConverter',
+    'value.converter'                           = 'io.confluent.connect.avro.AvroConverter',
+    'key.converter.schemas.enable'              = 'false',
+    'value.converter.schemas.enable'            = 'true',
+    'value.converter.schema.registry.url'       = 'http://schema-registry:8081',
 );
 
 -- # 4. Stream Creation
@@ -28,7 +29,7 @@ create stream stream_table (
     scored_by int,
     watchers double,
     imdb_desc varchar(255)) 
-    WITH (kafka_topic='kdrm_kdrama_list', value_format='json', partitions=1
+    WITH (kafka_topic='psql_connect01_kdrama_list', value_format='json', partitions=1
     );
 
 -- # 5. Table Creation
@@ -42,15 +43,6 @@ CREATE TABLE final_table as
     GROUP BY 
         drama_name
     emit changes;
-
--- 6. Streaming Insertion
-insert into stream_table values (11, 'Hospital Playlist', 12, '...', 8.5, 3, 7, '...');
-insert into stream_table values (12, 'Hospital Playlist', 12, '...', 9.5, 1, 3, '...');
-insert into stream_table values (13, 'Descendants of the Sun', 16, '...', 8.8, 6, 10, '...');
-insert into stream_table values (14, 'Mouse', 20, '...', 9, 10, 10, '...');
-insert into stream_table values (15, 'Vincenzo', 12, '...', 9.3, 13, 25, '...');
-insert into stream_table values (16, 'Extraordinary Attorney Woo', 16, '...', 9.6, 4, 7, '...');
-insert into stream_table values (17, 'Extraordinary Attorney Woo', 16, '...', 9.0, 8, 8, '...');
 
 -- 7. Final Table
 select * from final_table WHERE rating > 9.0;
