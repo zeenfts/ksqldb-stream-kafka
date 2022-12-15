@@ -153,9 +153,22 @@ services:
       KSQL_CONNECT_STATUS_STORAGE_TOPIC: "_ksql-connect-statuses"
       KSQL_CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       KSQL_CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      KSQL_CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1 
+      KSQL_CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      KSQL_CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars 
       KSQL_KSQL_SERVICE_ID: "ksql_01"
       KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+    # command:
+    #   - bash
+    #   - -c
+    #   - |
+    #     echo '127.0.0.1 ksqldb-server' >> /etc/hosts
+    #     echo "Installing Connector"
+    #     confluent-hub install --no-prompt debezium/debezium-connector-postgresql:1.9.7
+    #     #
+    #     echo "Launching Kafka Connect worker"
+    #     /etc/confluent/docker/run &
+    #     #
+    #     sleep infinity
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.3.0

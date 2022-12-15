@@ -1,4 +1,4 @@
--- # Table Creation
+-- # 2. Table Creation
 create table kdrama_list (
     list_id int primary key,
     drama_name varchar(150),
@@ -7,15 +7,15 @@ create table kdrama_list (
     score_list float,
     scored_by int,
     watchers float,
-    imdb_desc text
+    imdb_desc varchar(255)
     );
 
--- # Data insertion
+-- # 3. Data insertion
 insert into kdrama_list values 
     (1, 'Move to Heaven', 10, 'Netflix', 9.2, 26058, 51979, 'Working as trauma cleaners, both Gu-ru and Sang-gu uncover various stories of the deceased while exp...'),
     (2, 'Extraordinary Attorney Woo', 16, 'Netflix', 9.2, 8535, 33699, 'About an autistic 27-year-old lawyer. Due to her high IQ of 164, impressive memory, and creative tho...'),
     (3, 'Hospital Playlist', 12, 'Netlix-TVN', 9.1, 32842, 72138, 'Hospital Playlist tells the story of five doctors who have been friends since they entered medical s...'),
-    (4, 'Its Okay to Not be Okay', 16, 'Netflix-TVN', 9, 71704, 129299, 'An extraordinary road to emotional healing opens up for an selfish antisocial childrens book writer...'),
+    (4, 'Its Okay to Not be Okay', 16, 'Netflix-TVN', 9, 71704, 129299, 'An extraordinary road to emotional healing opens up for an selfish antisocial children s book writer...'),
     (5, 'Guardian: The Lonely and Great God - Goblin', 16, 'TVN', 8.8, 91993, 173027, 'In his quest for a bride to break his immortal curse, Dokkaebi, a 939-year-old guardian of souls, me...'),
     (6, 'Mouse', 20, 'TVN', 8.8, 13640, 37206, 'A suspenseful story that will center around the key question, What if we could sort out psychopaths...'),
     (7, 'Start Up', 16, 'Netflix-TVN', 8.1, 36309, 70484, 'Young entrepreneurs aspiring to launch virtual dreams into reality compete for success and love in t...'),
