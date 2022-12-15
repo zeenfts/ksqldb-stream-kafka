@@ -7,4 +7,4 @@ Stream Processing Data from PostgresSQL using ksqlDB on Apache Kafka.
 4. Check [sql/](https://github.com/zeenfts/ksqldb-stream-kafka/tree/main/sql) for the relevant query (open each file for more detailed step which one to executed first).
 5. Expected output --> [imgs/](https://github.com/zeenfts/ksqldb-stream-kafka/tree/main/imgs).
 
-_**<sub>Note: For step 4, You might want to wait a little bit for the Kafka connect to be detected by ksqldb!</sub>**_
+_**<sub>Note: You might want to wait a little bit for the set-up process, step 1!</sub>**_
