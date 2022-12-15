@@ -55,20 +55,6 @@ services:
         echo '127.0.0.1 broker' >> /etc/hosts
         /etc/confluent/docker/run
         sleep infinity 
-
-  # schema-registry:
-  #   image: confluentinc/cp-schema-registry:7.3.0
-  #   container_name: schema-registry
-  #   depends_on:
-  #     - zookeeper
-  #     - broker
-  #   # networks:
-  #   #   - net-ksql-con
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
-  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
   
   kafka-connect:
     image: confluentinc/cp-kafka-connect:7.3.0
@@ -90,10 +76,6 @@ services:
       CONNECT_CONFIG_STORAGE_TOPIC: "_connect-configs"
       CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
       CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
-      # CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      # CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-      # CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      # CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
@@ -138,16 +120,12 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_CONNECT_GROUP_ID: "ksql-connect-cluster"
       KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: "9223372036854775807"
-      ## if activated ksql can't connect with kafka-connect,
-      ## but if not ksql-cli seems can't detect ksql-server version
       KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksql-connect"
       KSQL_CONNECT_BOOTSTRAP_SERVERS: "broker:9092"
       KSQL_CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
       KSQL_CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       KSQL_CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
-      # KSQL_CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-      # KSQL_CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       KSQL_CONNECT_CONFIG_STORAGE_TOPIC: "_ksql-connect-configs"
       KSQL_CONNECT_OFFSET_STORAGE_TOPIC: "_ksql-connect-offsets"
       KSQL_CONNECT_STATUS_STORAGE_TOPIC: "_ksql-connect-statuses"
@@ -157,18 +135,6 @@ services:
       KSQL_CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars 
       KSQL_KSQL_SERVICE_ID: "ksql_01"
       KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
-    # command:
-    #   - bash
-    #   - -c
-    #   - |
-    #     echo '127.0.0.1 ksqldb-server' >> /etc/hosts
-    #     echo "Installing Connector"
-    #     confluent-hub install --no-prompt debezium/debezium-connector-postgresql:1.9.7
-    #     #
-    #     echo "Launching Kafka Connect worker"
-    #     /etc/confluent/docker/run &
-    #     #
-    #     sleep infinity
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.3.0
