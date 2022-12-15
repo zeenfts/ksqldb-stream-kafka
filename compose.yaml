@@ -7,8 +7,8 @@ version: '3.7'
 
 services:
   postgres:
-    # image: debezium/postgres:13-alpine
-    image: postgres:13-alpine
+    image: debezium/postgres:13-alpine
+    # image: postgres:13-alpine
     hostname: postgres
     container_name: postgres
     ports:
@@ -48,20 +48,27 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    command:
+      - bash
+      - -c 
+      - |
+        echo '127.0.0.1 broker' >> /etc/hosts
+        /etc/confluent/docker/run
+        sleep infinity 
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.3.0
-    container_name: schema-registry
-    depends_on:
-      - zookeeper
-      - broker
-    # networks:
-    #   - net-ksql-con
-    ports:
-      - "8081:8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
+  # schema-registry:
+  #   image: confluentinc/cp-schema-registry:7.3.0
+  #   container_name: schema-registry
+  #   depends_on:
+  #     - zookeeper
+  #     - broker
+  #   # networks:
+  #   #   - net-ksql-con
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  #     SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
   
   kafka-connect:
     image: confluentinc/cp-kafka-connect:7.3.0
@@ -69,7 +76,7 @@ services:
     container_name: kafka-connect
     depends_on:
       - broker
-      - schema-registry
+      # - schema-registry
     # networks:
     #   - net-ksql-con
     ports:
@@ -84,26 +91,29 @@ services:
       CONNECT_OFFSET_STORAGE_TOPIC: "_connect-offsets"
       CONNECT_STATUS_STORAGE_TOPIC: "_connect-status"
       # CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      # CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       # CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
-      CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      # CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
       CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      # CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
-    # volumes: # both plugin_path & this volume must be active if you want to provide the connectors via local storage
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+    # volumes: # this volume must be active if you want to provide the connectors via local storage
     #   - $PWD/data:/data
     command:
       - bash
       - -c
       - |
+        echo '127.0.0.1 kafka-connect' >> /etc/hosts
         echo "Installing Connector"
-        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:2.0.1
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:1.9.7
         #
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
@@ -127,23 +137,25 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_CONNECT_GROUP_ID: "ksql-connect-cluster"
-      # KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: 9223372036854775807
-      # KSQL_KSQL_CONNECT_URL: http://kafka-connect:8083
+      KSQL_STREAMS_PRODUCER_MAX_BLOCK_MS: "9223372036854775807"
+      ## if activated ksql can't connect with kafka-connect,
+      ## but if not ksql-cli seems can't detect ksql-server version
+      KSQL_KSQL_CONNECT_URL: "http://kafka-connect:8083"
       KSQL_CONNECT_REST_ADVERTISED_HOST_NAME: "ksql-connect"
       KSQL_CONNECT_BOOTSTRAP_SERVERS: "broker:9092"
       KSQL_CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      KSQL_CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
-      KSQL_CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
-      KSQL_CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-      KSQL_CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      KSQL_CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      KSQL_CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      # KSQL_CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      # KSQL_CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       KSQL_CONNECT_CONFIG_STORAGE_TOPIC: "_ksql-connect-configs"
       KSQL_CONNECT_OFFSET_STORAGE_TOPIC: "_ksql-connect-offsets"
       KSQL_CONNECT_STATUS_STORAGE_TOPIC: "_ksql-connect-statuses"
       KSQL_CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
       KSQL_CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
       KSQL_CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1 
-      # KSQL_KSQL_SERVICE_ID: confluent_rmoff_01
-      # KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
+      KSQL_KSQL_SERVICE_ID: "ksql_01"
+      KSQL_KSQL_HIDDEN_TOPICS: '^_.*'
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.3.0
