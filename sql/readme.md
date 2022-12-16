@@ -102,5 +102,5 @@ insert into kdrama_list values (17, 'Extraordinary Attorney Woo', 16, '...', 9.0
 ## Final Table Query
 ```
 ksql>
-select * from final_table WHERE rating > 9.0;
+select * from final_table WHERE rating > 9.1;
 ```
