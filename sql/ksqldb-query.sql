@@ -16,7 +16,7 @@ CREATE SOURCE CONNECTOR kdrm_source WITH (
     'value.converter'                           = 'io.confluent.connect.avro.AvroConverter',
     'key.converter.schemas.enable'              = 'false',
     'value.converter.schemas.enable'            = 'true',
-    'value.converter.schema.registry.url'       = 'http://schema-registry:8081',
+    'value.converter.schema.registry.url'       = 'http://schema-registry:8081'
 );
 
 -- # 4. Stream Creation
@@ -32,6 +32,12 @@ create stream stream_table (
     WITH (kafka_topic='psql_connect01_kdrama_list', value_format='json', partitions=1
     );
 
+-- or
+
+create stream stream_table WITH (
+    kafka_topic='psql_connect01_kdrama_list', value_format='avro', partitions=1
+);
+
 -- # 5. Table Creation
 CREATE TABLE final_table as
     SELECT 
@@ -45,4 +51,4 @@ CREATE TABLE final_table as
     emit changes;
 
 -- 7. Final Table
-select * from final_table WHERE rating > 9.0;
+select * from final_table WHERE rating > 9.1;
